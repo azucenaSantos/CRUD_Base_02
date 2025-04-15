@@ -1,6 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DxDataGridComponent } from 'devextreme-angular';
 import { DxDataGridTypes } from 'devextreme-angular/ui/data-grid';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-lista',
@@ -8,10 +10,9 @@ import { DxDataGridTypes } from 'devextreme-angular/ui/data-grid';
   styleUrls: ['./lista.component.scss'],
 })
 export class ListaComponent implements OnInit {
-[x: string]: any;
-  @ViewChild('lista') datagrid!: DxDataGridComponent;
+  @ViewChild('lista') datagrid!: DxDataGridComponent; //acceso al componente del data-grid
 
-  listaComidas = comidas;
+  //listaComidas = comidas;
 
   model: any = {};
 
@@ -21,12 +22,38 @@ export class ListaComponent implements OnInit {
 
   enterKeyDirection: DxDataGridTypes.EnterKeyDirection = 'row';
 
-  constructor() {}
+  foods: any = {}; //vacio por defecto
+  constructor(private http: HttpClient, private apiService: ApiService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    //acceso a todos los datos de la api
+    this.apiService.get().subscribe({
+      next: (response) => (this.foods = response),
+      error: (error) => console.log(error),
+    });
+  }
 
   addFood() {
-    //Crear nueva comida con valores del model (from)
+    const newFood: Comida = {
+      id: this.model.id,
+      nombre: this.model.nombre,
+      descripcion: this.model.descripcion,
+      precio: this.model.precio,
+      saludable: this.model.saludable,
+    };
+
+    this.apiService.add(newFood).subscribe({
+      next: (_) => {
+        this.apiService.get().subscribe({
+          next: (response) => {
+            (this.foods = response), this.datagrid.instance.refresh();
+          },
+          error: (error) => console.log(error),
+        });
+      },
+    });
+
+    /*//Crear nueva comida con valores del model (from)
     if (this.model.id != undefined) {
       const newFood: Comida = {
         id: this.model.id,
@@ -36,31 +63,55 @@ export class ListaComponent implements OnInit {
         saludable: this.model.saludable,
       };
       //Añadimos a la lista de comidas
-      this.listaComidas.push(newFood);
+      this.foods.push(newFood);
       this.datagrid.instance.refresh();
     } else {
       alert('Debes especificar un id!');
-    }
+    }*/
   }
 
   deleteFood() {
     const idDelete = this.model.idDelete;
-    for (let i = 0; i < this.listaComidas.length; i++) {
-      if (this.listaComidas[i].id == idDelete) {
-        this.listaComidas.splice(i, 1);
+    console.log(idDelete);
+    this.apiService.remove(idDelete).subscribe({
+      next: (_) => {
+        for (let i = 0; i < this.foods.length; i++) {
+          if (this.foods[i].id == idDelete) {
+            this.foods.splice(i, 1);
+            break;
+          }
+        }
+      },
+    });
+    /*const idDelete = this.model.idDelete;
+    for (let i = 0; i < this.foods.length; i++) {
+      if (this.foods[i].id == idDelete) {
+        this.foods.splice(i, 1);
         break;
       }
     }
-    this.datagrid.instance.refresh();
+    this.datagrid.instance.refresh();*/
   }
 
   onEditorPreparing(e: any) {
-    e.editorOptions.onFocusIn = (args: any) => {  
-      var input = args.element.querySelector(".dx-texteditor-input");  
-      if(input != null){  
-            input.select();  
-      }  
-    }  
+    e.editorOptions.onFocusIn = (args: any) => {
+      var input = args.element.querySelector('.dx-texteditor-input');
+      if (input != null) {
+        input.select();
+      }
+    };
+  }
+
+  updateFoodApi(e: any) {
+    //Obtener datos modificados
+    const updatedData = e.changes; //almacena un array
+    updatedData.forEach((data: any) => {
+      const newFood = data.data; //todos los datos de todas las filas modificadas
+      this.apiService.update(newFood.id, newFood).subscribe({
+        next: (_) => this.datagrid.instance.refresh(),
+        error: (error) => console.log(error),
+      });
+    });
   }
 }
 
@@ -72,7 +123,7 @@ class Comida {
   saludable?: boolean;
 }
 
-var comidas: Comida[] = [
+/*var comidas: Comida[] = [
   {
     id: 1,
     nombre: 'Patatas',
@@ -101,4 +152,4 @@ var comidas: Comida[] = [
     precio: 10,
     saludable: false,
   },
-];
+];*/

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API\\API.csproj": {}
+    "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API\\API.csproj": {
+    "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API\\API.csproj",
+        "projectPath": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API.csproj",
         "packagesPath": "C:\\Users\\PRACTICAS\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\API\\obj\\",
+        "outputPath": "C:\\Users\\PRACTICAS\\Desktop\\CRUD_Base\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\PRACTICAS\\AppData\\Roaming\\NuGet\\NuGet.Config"

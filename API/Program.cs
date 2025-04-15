@@ -1,5 +1,7 @@
 using API.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,8 @@ builder.Services.AddDbContext<DataContext>(opt =>
     //le pasamos una cadena de conexion, que obtenemos de la configuracion
 });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,7 +31,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("http://localhost:4200")); //SIN "S" en el HTTP
+
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 

@@ -1,10 +1,11 @@
 <dx-data-grid
   id="dataGrid"
-  [dataSource]="listaComidas"
+  [dataSource]="foods"
   [columnAutoWidth]="true"
   [allowColumnResizing]="true"
   [showBorders]="true"
   (onEditorPreparing)="onEditorPreparing($event)"
+  (onSaved)="updateFoodApi($event)"
   #lista
 >
   <dxo-keyboard-navigation
@@ -54,3 +55,5 @@
     <button (click)="deleteFood()">Borrar</button>
   </form>
 </div>
+
+
