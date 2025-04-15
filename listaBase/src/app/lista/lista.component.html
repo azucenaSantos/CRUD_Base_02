@@ -1,0 +1,56 @@
+<dx-data-grid
+  id="dataGrid"
+  [dataSource]="listaComidas"
+  [columnAutoWidth]="true"
+  [allowColumnResizing]="true"
+  [showBorders]="true"
+  (onEditorPreparing)="onEditorPreparing($event)"
+  #lista
+>
+  <dxo-keyboard-navigation
+    [editOnKeyPress]="editOnkeyPress"
+    [enterKeyAction]="enterKeyAction"
+    [enterKeyDirection]="enterKeyDirection"
+  >
+  </dxo-keyboard-navigation>
+
+  <dxo-search-panel [visible]="true" [width]="250" placeholder="Buscar...">
+  </dxo-search-panel>
+
+  <dxo-editing
+    mode="batch"
+    [allowUpdating]="true"
+    [allowAdding]="false"
+    [allowDeleting]="false"
+  >
+  </dxo-editing>
+</dx-data-grid>
+
+<div class="container">
+  <form>
+    <h2>Añadir comida</h2>
+    <label for="id">ID:</label>
+    <input type="text" [(ngModel)]="model.id" name="id" required /> <br />
+    <label for="nombre">Nombre:</label>
+    <input type="text" [(ngModel)]="model.nombre" name="nombre" required/> <br />
+    <label for="descripcion">Descripcion:</label>
+    <input
+      type="text"
+      [(ngModel)]="model.descripcion"
+      name="descripcion"
+      required
+    /><br />
+    <label for="precio">Precio:</label>
+    <input type="number" [(ngModel)]="model.precio" name="precio" required/><br />
+    <label for="salud">Saludable:</label>
+    <input type="checkbox" [(ngModel)]="model.saludable" name="salud" required/><br />
+    <button (click)="addFood()">Añadir</button>
+  </form>
+
+  <form>
+    <h2>Borrar comida</h2>
+    <label for="id">ID:</label>
+    <input type="text" [(ngModel)]="model.idDelete" name="idDelete" required/> <br />
+    <button (click)="deleteFood()">Borrar</button>
+  </form>
+</div>
