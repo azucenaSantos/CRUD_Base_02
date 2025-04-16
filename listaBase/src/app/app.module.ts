@@ -8,6 +8,9 @@ import { AppComponent } from './app.component';
 import { ListaComponent } from './lista/lista.component';
 import { DxDataGridModule } from 'devextreme-angular';
 import { FormsModule } from '@angular/forms';
+import { ToastrModule } from 'ngx-toastr';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+
 
 @NgModule({
   declarations: [
@@ -19,7 +22,9 @@ import { FormsModule } from '@angular/forms';
     AppRoutingModule,
     DxDataGridModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    ToastrModule.forRoot(),
+    BrowserAnimationsModule 
   ],
   providers: [],
   bootstrap: [AppComponent]

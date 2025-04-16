@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { DxDataGridComponent } from 'devextreme-angular';
 import { DxDataGridTypes } from 'devextreme-angular/ui/data-grid';
 import { ApiService } from '../services/api.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-lista',
@@ -23,13 +24,17 @@ export class ListaComponent implements OnInit {
   enterKeyDirection: DxDataGridTypes.EnterKeyDirection = 'row';
 
   foods: any = {}; //vacio por defecto
-  constructor(private http: HttpClient, private apiService: ApiService) {}
+  constructor(
+    private http: HttpClient,
+    private apiService: ApiService,
+    private toaster: ToastrService
+  ) {}
 
   ngOnInit(): void {
     //acceso a todos los datos de la api
     this.apiService.get().subscribe({
       next: (response) => (this.foods = response),
-      error: (error) => console.log(error),
+      error: (error) => console.log(error.error),
     });
   }
 
@@ -48,9 +53,9 @@ export class ListaComponent implements OnInit {
           next: (response) => {
             (this.foods = response), this.datagrid.instance.refresh();
           },
-          error: (error) => console.log(error),
         });
       },
+      error: (error) => this.toaster.error(error.error),
     });
 
     /*//Crear nueva comida con valores del model (from)
@@ -82,6 +87,7 @@ export class ListaComponent implements OnInit {
           }
         }
       },
+      error: (error) => this.toaster.error(error.error),
     });
     /*const idDelete = this.model.idDelete;
     for (let i = 0; i < this.foods.length; i++) {
@@ -109,7 +115,7 @@ export class ListaComponent implements OnInit {
       const newFood = data.data; //todos los datos de todas las filas modificadas
       this.apiService.update(newFood.id, newFood).subscribe({
         next: (_) => this.datagrid.instance.refresh(),
-        error: (error) => console.log(error),
+        error: (error) => this.toaster.error(error.error),
       });
     });
   }
