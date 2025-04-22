@@ -7,9 +7,11 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ListaComponent } from './lista/lista.component';
 import { DxDataGridModule } from 'devextreme-angular';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { DxButtonModule } from 'devextreme-angular';
+
 
 
 @NgModule({
@@ -24,7 +26,9 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
     FormsModule,
     HttpClientModule,
     ToastrModule.forRoot(),
-    BrowserAnimationsModule 
+    BrowserAnimationsModule ,
+    DxButtonModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,13 +1,22 @@
-*{
+* {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.container {
+
+.principal-container{
     display: flex;
-    justify-content: center;
+    margin: 60px;
+}
+#dataGrid {
+    width: 60%;
+}
+
+.container {
+    /*display: flex;
+    justify-content: center;*/
 }
 
 form {
-    width: 300px;
+    width: 600px;
     margin: 30px;
     padding: 20px;
     border: 1px solid #ccc;
@@ -30,7 +39,7 @@ form {
     input[type="number"] {
         width: 100%;
         padding: 8px;
-        margin-top: 5px;
+        margin-top: 15px;
         border: 1px solid #dddddd;
         border-radius: 4px;
         box-sizing: border-box;
@@ -41,7 +50,7 @@ form {
     }
 
     button {
-        background-color: #5aaccc; 
+        background-color: #5aaccc;
         border: none;
         color: white;
         padding: 10px 20px;
@@ -53,8 +62,8 @@ form {
         cursor: pointer;
         border-radius: 4px;
 
-        &:hover{
-            background-color: #2f7794; 
+        &:hover {
+            background-color: #2f7794;
             transition: all 200ms linear;
 
         }

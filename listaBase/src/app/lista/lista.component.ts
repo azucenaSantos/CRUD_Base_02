@@ -4,6 +4,11 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import { DxDataGridTypes } from 'devextreme-angular/ui/data-grid';
 import { ApiService } from '../services/api.service';
 import { ToastrService } from 'ngx-toastr';
+import {
+  BrowserModule,
+  DomSanitizer,
+  SafeHtml,
+} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-lista',
@@ -14,6 +19,7 @@ export class ListaComponent implements OnInit {
   @ViewChild('lista') datagrid!: DxDataGridComponent; //acceso al componente del data-grid
 
   //listaComidas = comidas;
+  //focusedRowKey = 5;
 
   model: any = {};
 
@@ -23,7 +29,18 @@ export class ListaComponent implements OnInit {
 
   enterKeyDirection: DxDataGridTypes.EnterKeyDirection = 'row';
 
-  foods: any = {}; //vacio por defecto
+  taskSubject: string = '';
+
+  taskDetailsHtml: SafeHtml | undefined;
+
+  taskStatus: string = '';
+
+  taskProgress: string = '';
+
+  data: any = ['', '', '', '', ''];
+
+  foods: any;
+  sanitizer: any;
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
@@ -46,6 +63,7 @@ export class ListaComponent implements OnInit {
       precio: this.model.precio,
       saludable: this.model.saludable,
     };
+    console.log(newFood);
 
     this.apiService.add(newFood).subscribe({
       next: (_) => {
@@ -57,27 +75,10 @@ export class ListaComponent implements OnInit {
       },
       error: (error) => this.toaster.error(error.error),
     });
-
-    /*//Crear nueva comida con valores del model (from)
-    if (this.model.id != undefined) {
-      const newFood: Comida = {
-        id: this.model.id,
-        nombre: this.model.nombre,
-        descripcion: this.model.descripcion,
-        precio: this.model.precio,
-        saludable: this.model.saludable,
-      };
-      //Añadimos a la lista de comidas
-      this.foods.push(newFood);
-      this.datagrid.instance.refresh();
-    } else {
-      alert('Debes especificar un id!');
-    }*/
   }
 
   deleteFood() {
-    const idDelete = this.model.idDelete;
-    console.log(idDelete);
+    const idDelete = this.data.id;
     this.apiService.remove(idDelete).subscribe({
       next: (_) => {
         for (let i = 0; i < this.foods.length; i++) {
@@ -89,16 +90,57 @@ export class ListaComponent implements OnInit {
       },
       error: (error) => this.toaster.error(error.error),
     });
-    /*const idDelete = this.model.idDelete;
-    for (let i = 0; i < this.foods.length; i++) {
-      if (this.foods[i].id == idDelete) {
-        this.foods.splice(i, 1);
-        break;
-      }
-    }
-    this.datagrid.instance.refresh();*/
   }
 
+  updateFoodApi() {
+    if (this.data.id) { //Comprobar si hemos seleccionado un objeto de la lista
+      //Objeto con datos actualizadps
+      const updatedFood: Comida = {
+        id: this.model.id,
+        nombre: this.model.nombre,
+        descripcion: this.model.descripcion,
+        precio: this.model.precio,
+        saludable: this.model.saludable,
+      };
+
+      //Actualizacion de los datos en la api y refrescar datagrid
+      this.apiService.update(updatedFood.id, updatedFood).subscribe({
+        next: (_) => {
+          this.apiService.get().subscribe({
+            next: (response) => {
+              (this.foods = response), this.datagrid.instance.refresh();
+            },
+          });
+        },
+        error: (error) => this.toaster.error(error.error),
+      });
+    } else {
+      this.toaster.warning('Seleccione un elemento para actualizar');
+    }
+  }  
+
+  updateFoodApi2(e: any) {
+    //Obtener datos modificados
+    const updatedData = e.changes; //almacena un array
+    console.log(updatedData);
+    /*updatedData.forEach((data: any) => {
+      const newFood = data.data; //todos los datos de todas las filas modificadas
+      this.apiService.update(newFood.id, newFood).subscribe({
+        next: (_) => this.datagrid.instance.refresh(),
+        error: (error) => this.toaster.error(error.error),
+      });
+    });*/
+  }
+
+
+  getDataFromRowSelected(e: any) {
+    this.data = e.data;
+    //Sincronizar los valores del objeto de la lista con el model
+    //para poder editarlos tras seleccionarlos
+    this.model = { ...e.data };
+  }
+
+  //Selecciona todo el contenido del input a modificar
   onEditorPreparing(e: any) {
     e.editorOptions.onFocusIn = (args: any) => {
       var input = args.element.querySelector('.dx-texteditor-input');
@@ -106,18 +148,6 @@ export class ListaComponent implements OnInit {
         input.select();
       }
     };
-  }
-
-  updateFoodApi(e: any) {
-    //Obtener datos modificados
-    const updatedData = e.changes; //almacena un array
-    updatedData.forEach((data: any) => {
-      const newFood = data.data; //todos los datos de todas las filas modificadas
-      this.apiService.update(newFood.id, newFood).subscribe({
-        next: (_) => this.datagrid.instance.refresh(),
-        error: (error) => this.toaster.error(error.error),
-      });
-    });
   }
 }
 

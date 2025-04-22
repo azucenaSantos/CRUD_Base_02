@@ -1,59 +1,88 @@
-<dx-data-grid
-  id="dataGrid"
-  [dataSource]="foods"
-  [columnAutoWidth]="true"
-  [allowColumnResizing]="true"
-  [showBorders]="true"
-  (onEditorPreparing)="onEditorPreparing($event)"
-  (onSaved)="updateFoodApi($event)"
-  #lista
->
-  <dxo-keyboard-navigation
-    [editOnKeyPress]="editOnkeyPress"
-    [enterKeyAction]="enterKeyAction"
-    [enterKeyDirection]="enterKeyDirection"
-  >
-  </dxo-keyboard-navigation>
+<div class="principal-container" *ngIf="foods">
+  <dx-data-grid
+    id="dataGrid"
+    keyExpr="id"
+    [dataSource]="foods"
+    [showBorders]="true"
+    (onEditorPreparing)="onEditorPreparing($event)"
+    [focusedRowEnabled]="true"
+    (onSaved)="updateFoodApi2($event)"
+    [hoverStateEnabled]="true"
+    (onCellClick)="getDataFromRowSelected($event)"
+  #lista>
+  <!--[(focusedRowKey)]="focusedRowKey"
+      (onSaved)="updateFoodApi($event)"-->
+    <dxo-toolbar>
+      <dxi-item location="after">
+        <dx-button icon="add" (onClick)="addFood()">
+          
+        </dx-button>
+      </dxi-item>
+      <dxi-item location="after">
+        <dx-button icon="trash" (onClick)="deleteFood()">  </dx-button>
+      </dxi-item>
+      <dxi-item location="after">
+        <dx-button icon="save" (onClick)="updateFoodApi()">  </dx-button>
+      </dxi-item>
+    </dxo-toolbar>
+    <dxo-keyboard-navigation
+      [editOnKeyPress]="editOnkeyPress"
+      [enterKeyAction]="enterKeyAction"
+      [enterKeyDirection]="enterKeyDirection"
+    >
+    </dxo-keyboard-navigation>
 
-  <dxo-search-panel [visible]="true" [width]="250" placeholder="Buscar...">
-  </dxo-search-panel>
+    <dxo-search-panel [visible]="true" [width]="250" placeholder="Buscar...">
+    </dxo-search-panel>
 
-  <dxo-editing
-    mode="batch"
-    [allowUpdating]="true"
-    [allowAdding]="false"
-    [allowDeleting]="false"
-  >
-  </dxo-editing>
-</dx-data-grid>
+    <dxo-editing
+      mode="batch"
+      [allowAdding]="false"
+      [allowDeleting]="false"
+    >
+    </dxo-editing>
+  </dx-data-grid>
 
-<div class="container">
-  <form>
-    <h2>Añadir comida</h2>
-    <label for="id">ID:</label>
-    <input type="text" [(ngModel)]="model.id" name="id" required /> <br />
-    <label for="nombre">Nombre:</label>
-    <input type="text" [(ngModel)]="model.nombre" name="nombre" required/> <br />
-    <label for="descripcion">Descripcion:</label>
-    <input
+  <div class="container">
+    <form>
+      <h2>Datos de comida</h2>
+      <label for="id">ID:</label>
+      <input type="text" [(ngModel)]="model.id" [value]="data?.id" name="id" required /> <br />
+      <label for="nombre">Nombre:</label>
+      <input type="text" [(ngModel)]="model.nombre" [value]="data?.nombre" name="nombre" required />
+      <br />
+      <label for="descripcion">Descripcion:</label>
+      <input
       type="text"
       [(ngModel)]="model.descripcion"
       name="descripcion"
+      [value]="data?.descripcion"
       required
-    /><br />
-    <label for="precio">Precio:</label>
-    <input type="number" [(ngModel)]="model.precio" name="precio" required/><br />
-    <label for="salud">Saludable:</label>
-    <input type="checkbox" [(ngModel)]="model.saludable" name="salud" required/><br />
-    <button (click)="addFood()">Añadir</button>
-  </form>
+      /><br />
+      <label for="precio">Precio:</label>
+      <input
+      type="number"
+      [(ngModel)]="model.precio"
+      name="precio"
+      [value]="data?.precio"
+      required
+      /><br />
+      <label for="salud">Saludable:</label>
+      <input
+      type="checkbox"
+      [(ngModel)]="model.saludable"
+      name="salud"
+      [checked]="data?.saludable"
+      required
+      /><br />
+      <button type="reset">Limpar</button>
+    </form>
 
-  <form>
+    <!--<form>
     <h2>Borrar comida</h2>
     <label for="id">ID:</label>
     <input type="text" [(ngModel)]="model.idDelete" name="idDelete" required/> <br />
     <button (click)="deleteFood()">Borrar</button>
-  </form>
+  </form>-->
+  </div>
 </div>
-
-
