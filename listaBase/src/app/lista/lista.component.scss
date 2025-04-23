@@ -7,7 +7,14 @@
     margin: 60px;
 }
 #dataGrid {
-    width: 60%;
+    //width: 90%;
+    padding: 50px;
+}
+
+td{
+    width: 50%;
+    height: 700px;
+    
 }
 
 .container {
@@ -15,12 +22,20 @@
     justify-content: center;*/
 }
 
+table {
+    border-collapse: collapse;
+    tr {
+        td:last-child {
+            border-left: 1px dashed rgb(90, 90, 90);
+        }
+    }
+}
+
+
 form {
-    width: 600px;
-    margin: 30px;
+    margin: 55px;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #dfdfdf;
     font-family: sans-serif;
 
     h2 {
@@ -49,23 +64,15 @@ form {
         margin-top: 15px;
     }
 
-    button {
-        background-color: #5aaccc;
+    button {        
         border: none;
-        color: white;
+        color: rgb(48, 48, 48);       
         padding: 10px 20px;
         text-align: center;
         text-decoration: none;
-        display: inline-block;
+        display: block;
         font-size: 16px;
         margin-top: 15px;
-        cursor: pointer;
         border-radius: 4px;
-
-        &:hover {
-            background-color: #2f7794;
-            transition: all 200ms linear;
-
-        }
     }
 }

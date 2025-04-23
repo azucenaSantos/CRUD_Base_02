@@ -1,0 +1,19 @@
+<div class="mb-3">
+  <input
+    autofocus
+    type="{{ type }}"
+    [class.is-invalid]="control.touched && control.invalid && activation"
+    class="form-control"
+    [formControl]="control"
+    value="{{ value }}"  
+    
+    />
+
+  <div class="invalid-feedback" *ngIf="control.errors?.['required']" >
+    Campo obligatorio
+  </div>
+  <div class="invalid-feedback" *ngIf="control.errors?.['minlength']">
+    Campo de
+    {{control.errors?.['minlength'].requiredLength}} caracteres mínimos
+  </div>
+</div>

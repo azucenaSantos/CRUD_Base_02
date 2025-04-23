@@ -2,6 +2,7 @@
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250423114809_CreateDecimalNumber")]
+    partial class CreateDecimalNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.1");
@@ -34,39 +37,9 @@ namespace API.Data.Migrations
                     b.Property<bool>("Saludable")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TypeEntityId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TypeEntityId");
 
                     b.ToTable("Foods");
-                });
-
-            modelBuilder.Entity("API.Entities.TypeEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nombre")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TypeEntity");
-                });
-
-            modelBuilder.Entity("API.Entities.FoodEntity", b =>
-                {
-                    b.HasOne("API.Entities.TypeEntity", "TypeFood")
-                        .WithMany()
-                        .HasForeignKey("TypeEntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TypeFood");
                 });
 #pragma warning restore 612, 618
         }

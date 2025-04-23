@@ -10,17 +10,18 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import { DxButtonModule } from 'devextreme-angular';
-
-
+import { DxButtonModule} from 'devextreme-angular';
+import { TextInputComponent } from './_forms/text-input/text-input.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ListaComponent
+    ListaComponent,
+    TextInputComponent
   ],
   imports: [
     BrowserModule,
+
     AppRoutingModule,
     DxDataGridModule,
     FormsModule,
@@ -28,7 +29,8 @@ import { DxButtonModule } from 'devextreme-angular';
     ToastrModule.forRoot(),
     BrowserAnimationsModule ,
     DxButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule, 
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

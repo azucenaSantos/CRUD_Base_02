@@ -4,11 +4,9 @@ import { DxDataGridComponent } from 'devextreme-angular';
 import { DxDataGridTypes } from 'devextreme-angular/ui/data-grid';
 import { ApiService } from '../services/api.service';
 import { ToastrService } from 'ngx-toastr';
-import {
-  BrowserModule,
-  DomSanitizer,
-  SafeHtml,
-} from '@angular/platform-browser';
+import { SafeHtml } from '@angular/platform-browser';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TextInputComponent } from '../_forms/text-input/text-input.component';
 
 @Component({
   selector: 'app-lista',
@@ -18,10 +16,9 @@ import {
 export class ListaComponent implements OnInit {
   @ViewChild('lista') datagrid!: DxDataGridComponent; //acceso al componente del data-grid
 
-  //listaComidas = comidas;
-  //focusedRowKey = 5;
+  @ViewChild('inputFocus') inputFocus!: TextInputComponent;
 
-  model: any = {};
+  registerForm: FormGroup = new FormGroup({});
 
   editOnkeyPress = true;
 
@@ -40,45 +37,49 @@ export class ListaComponent implements OnInit {
   data: any = ['', '', '', '', ''];
 
   foods: any;
-  sanitizer: any;
+
+  rowFocus: number = 0;
+
+  activated: boolean = false;
+
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
-    private toaster: ToastrService
+    private toaster: ToastrService,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     //acceso a todos los datos de la api
     this.apiService.get().subscribe({
-      next: (response) => (this.foods = response),
+      next: (response) => {
+        this.foods = response;
+        this.getFirstRow();
+      },
       error: (error) => console.log(error.error),
     });
+
+    //inicializacion del formulario
+    this.initializeForm();
+    this.registerForm.markAsTouched();
   }
 
   addFood() {
-    const newFood: Comida = {
-      id: this.model.id,
-      nombre: this.model.nombre,
-      descripcion: this.model.descripcion,
-      precio: this.model.precio,
-      saludable: this.model.saludable,
-    };
-    console.log(newFood);
-
-    this.apiService.add(newFood).subscribe({
-      next: (_) => {
-        this.apiService.get().subscribe({
-          next: (response) => {
-            (this.foods = response), this.datagrid.instance.refresh();
-          },
-        });
-      },
-      error: (error) => this.toaster.error(error.error),
-    });
+    this.activated = false;
+    this.registerForm.reset();
+    this.inputFocus.focus();
+    this.rowFocus = -1;
+    this.data = ['', '', '', '', ''];
   }
 
   deleteFood() {
+    console.log(this.data);
     const idDelete = this.data.id;
+    //Busamos el indice de la fila eliminada
+    const indexToDelete = this.foods.findIndex(
+      (food: any) => food.id === idDelete
+    );
+
     this.apiService.remove(idDelete).subscribe({
       next: (_) => {
         for (let i = 0; i < this.foods.length; i++) {
@@ -87,67 +88,151 @@ export class ListaComponent implements OnInit {
             break;
           }
         }
+        //vacio form tras borrar
+        this.registerForm.reset();
+        //Controlamos el foco (si hay datos, si es el primer elemento...)
+        if (indexToDelete == 0) {
+          this.rowFocus = 0;
+          this.data = ['', '', '', '', ''];
+        } else {
+          this.rowFocus = indexToDelete - 1;
+        }
+
+        const row = this.foods[this.rowFocus]; // Obtener la fila superior al borrado
+        if (row) {
+          this.data = row;
+          this.registerForm.patchValue({
+            id: row.id,
+            nombre: row.nombre,
+            descripcion: row.descripcion,
+            precio: row.precio,
+            saludable: row.saludable,
+          });
+        } else {
+          //si nos quedamos sin filas reseteamos
+          this.registerForm.reset();
+        }
+        console.log(this.data);
       },
-      error: (error) => this.toaster.error(error.error),
+      error: () => this.toaster.error('Error en la eliminacion'),
     });
   }
 
-  updateFoodApi() {
-    if (this.data.id) { //Comprobar si hemos seleccionado un objeto de la lista
-      //Objeto con datos actualizadps
-      const updatedFood: Comida = {
-        id: this.model.id,
-        nombre: this.model.nombre,
-        descripcion: this.model.descripcion,
-        precio: this.model.precio,
-        saludable: this.model.saludable,
+
+  saveFoodApi() {
+    //Comprobar si estamos añadiendo una nueva o guardando modificaciones
+    if (!this.data.nombre) {
+      console.log('añadiendo');
+      //estamos añadiendo
+      const newFood: Comida = {
+        id: 0,
+        nombre: this.registerForm.controls['nombre'].value,
+        descripcion: this.registerForm.controls['descripcion'].value,
+        precio: this.registerForm.controls['precio'].value,
+        saludable: this.registerForm.controls['saludable'].value ?? false, //fuerzo a false cuado el control valga null (no marcado)
       };
 
-      //Actualizacion de los datos en la api y refrescar datagrid
-      this.apiService.update(updatedFood.id, updatedFood).subscribe({
-        next: (_) => {
-          this.apiService.get().subscribe({
-            next: (response) => {
-              (this.foods = response), this.datagrid.instance.refresh();
-            },
-          });
-        },
-        error: (error) => this.toaster.error(error.error),
-      });
+      if (this.registerForm.status == 'VALID') {
+        this.apiService.add(newFood).subscribe({
+          next: (_) => {
+            this.apiService.get().subscribe({
+              next: (response) => {
+                (this.foods = response), this.datagrid.instance.refresh();
+                // Establecer el foco en la última fila agregada
+                setTimeout(() => {
+                  this.rowFocus = this.foods.length;
+                }, 100);
+                //foco en el primer input del form
+                this.registerForm.markAsPristine();
+                this.inputFocus.focus();
+                this.activated = false;
+              },
+            });
+            //vacio form tras añadir
+            //this.registerForm.reset();
+          },
+          error: () => {
+            this.toaster.error('Revise los datos introducidos');
+          },
+        });
+      } else {
+        this.activated = true;
+        this.toaster.error(
+          'No se ha podido añadir, revise los valores introducidos'
+        );
+      }
     } else {
-      this.toaster.warning('Seleccione un elemento para actualizar');
+      console.log('modificando');
+      //estamos modificando
+      const updatedFood: Comida = {
+        id: this.data.id,
+        nombre: this.registerForm.controls['nombre'].value,
+        descripcion: this.registerForm.controls['descripcion'].value,
+        precio: this.registerForm.controls['precio'].value,
+        saludable: this.registerForm.controls['saludable'].value ?? false,
+      };
+      if (this.registerForm.status == 'VALID') {
+        //Actualizacion de los datos en la api y refrescar datagrid
+        this.apiService.update(this.data.id, updatedFood).subscribe({
+          next: (_) => {
+            this.apiService.get().subscribe({
+              next: (response) => {
+                (this.foods = response), this.datagrid.instance.refresh();
+              },
+            });
+            this.registerForm.markAsPristine();
+            this.inputFocus.focus();
+            this.activated = false;
+          },
+          error: (error) => this.toaster.error(error.error),
+        });
+      } else {
+        this.activated = true;
+        this.toaster.error(
+          'No se ha podido añadir, revise los valores introducidos'
+        );
+      }
     }
-  }  
-
-  updateFoodApi2(e: any) {
-    //Obtener datos modificados
-    const updatedData = e.changes; //almacena un array
-    console.log(updatedData);
-    /*updatedData.forEach((data: any) => {
-      const newFood = data.data; //todos los datos de todas las filas modificadas
-      this.apiService.update(newFood.id, newFood).subscribe({
-        next: (_) => this.datagrid.instance.refresh(),
-        error: (error) => this.toaster.error(error.error),
-      });
-    });*/
   }
-
 
   getDataFromRowSelected(e: any) {
+    this.activated = false;
     this.data = e.data;
-    //Sincronizar los valores del objeto de la lista con el model
-    //para poder editarlos tras seleccionarlos
-    this.model = { ...e.data };
+    //Funcion para sincronizar los valores de la lista con el formulario
+    this.registerForm.patchValue({
+      id: e.data.id,
+      nombre: e.data.nombre,
+      descripcion: e.data.descripcion,
+      precio: e.data.precio,
+      saludable: e.data.saludable,
+    });
   }
 
-  //Selecciona todo el contenido del input a modificar
-  onEditorPreparing(e: any) {
-    e.editorOptions.onFocusIn = (args: any) => {
-      var input = args.element.querySelector('.dx-texteditor-input');
-      if (input != null) {
-        input.select();
-      }
-    };
+  getFirstRow() {
+    if (this.foods && this.foods.length > 0) {
+      const firstRow = this.foods[0]; // Obtener la primera fila
+      this.data = firstRow; // Sincronizar con el objeto `data`
+      this.registerForm.patchValue({
+        id: firstRow.id,
+        nombre: firstRow.nombre,
+        descripcion: firstRow.descripcion,
+        precio: firstRow.precio,
+        saludable: firstRow.saludable,
+      });
+      this.rowFocus = 0; // Establecer el foco en la primera fila
+    } else {
+      //this.toaster.warning('No hay datos disponibles en la tabla');
+    }
+  }
+
+  initializeForm() {
+    this.registerForm = this.fb.group({
+      //Especificamos los campos de control del formulario
+      nombre: ['', [Validators.required, Validators.minLength(6)]], //validacion de 9 caracteres para el nombre
+      descripcion: [''],
+      precio: ['', Validators.required],
+      saludable: [false],
+    });
   }
 }
 
@@ -157,35 +242,5 @@ class Comida {
   descripcion?: string;
   precio?: number;
   saludable?: boolean;
+  tipoComida?: string;  
 }
-
-/*var comidas: Comida[] = [
-  {
-    id: 1,
-    nombre: 'Patatas',
-    descripcion: 'Patatas condimentadas con diferentes especias',
-    precio: 5,
-    saludable: false,
-  },
-  {
-    id: 2,
-    nombre: 'Ensalada',
-    descripcion: 'Variado de verduras y legumbres frescas',
-    precio: 7,
-    saludable: true,
-  },
-  {
-    id: 3,
-    nombre: 'Bocadillo',
-    descripcion: 'Pan de masa madre con fiambre variado',
-    precio: 5,
-    saludable: true,
-  },
-  {
-    id: 4,
-    nombre: 'Plato combinado',
-    descripcion: 'Plato que depende del menú del día',
-    precio: 10,
-    saludable: false,
-  },
-];*/
