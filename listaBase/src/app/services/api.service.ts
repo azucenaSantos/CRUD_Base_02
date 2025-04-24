@@ -16,6 +16,7 @@ export class ApiService {
 
 
   add(food: any){
+    console.log(food);
     return this.http.post<Food>(this.baseUrl+'/add', food);
   }
 
@@ -29,5 +30,10 @@ export class ApiService {
 
   update(id: number, updatedFood: any) {
     return this.http.put(`${this.baseUrl}/${id}`, updatedFood);
+  }
+
+  //Necesitamos un get de los tipos de comida -> todos los tipos de comida
+  getTypes(){
+    return this.http.get('https://localhost:6001/api/types');
   }
 }

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250423151729_AddTypeEntity")]
-    partial class AddTypeEntity
+    [Migration("20250424122946_TestUpdate")]
+    partial class TestUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,9 @@ namespace API.Data.Migrations
                     b.Property<string>("Descripcion")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("IdTypeEntity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Nombre")
                         .HasColumnType("TEXT");
 
@@ -37,12 +40,9 @@ namespace API.Data.Migrations
                     b.Property<bool>("Saludable")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TypeEntityId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TypeEntityId");
+                    b.HasIndex("IdTypeEntity");
 
                     b.ToTable("Foods");
                 });
@@ -58,18 +58,18 @@ namespace API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TypeEntity");
+                    b.ToTable("Types");
                 });
 
             modelBuilder.Entity("API.Entities.FoodEntity", b =>
                 {
-                    b.HasOne("API.Entities.TypeEntity", "TypeFood")
+                    b.HasOne("API.Entities.TypeEntity", "TypeEntity")
                         .WithMany()
-                        .HasForeignKey("TypeEntityId")
+                        .HasForeignKey("IdTypeEntity")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("TypeFood");
+                    b.Navigation("TypeEntity");
                 });
 #pragma warning restore 612, 618
         }

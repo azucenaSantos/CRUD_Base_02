@@ -5,20 +5,20 @@
 namespace API.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTypeEntity : Migration
+    public partial class CreateTypeFood : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "TypeEntityId",
+                name: "IdTypeEntity",
                 table: "Foods",
                 type: "INTEGER",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.CreateTable(
-                name: "TypeEntity",
+                name: "Types",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -27,19 +27,19 @@ namespace API.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TypeEntity", x => x.Id);
+                    table.PrimaryKey("PK_Types", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Foods_TypeEntityId",
+                name: "IX_Foods_IdTypeEntity",
                 table: "Foods",
-                column: "TypeEntityId");
+                column: "IdTypeEntity");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Foods_TypeEntity_TypeEntityId",
+                name: "FK_Foods_Types_IdTypeEntity",
                 table: "Foods",
-                column: "TypeEntityId",
-                principalTable: "TypeEntity",
+                column: "IdTypeEntity",
+                principalTable: "Types",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -48,18 +48,18 @@ namespace API.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Foods_TypeEntity_TypeEntityId",
+                name: "FK_Foods_Types_IdTypeEntity",
                 table: "Foods");
 
             migrationBuilder.DropTable(
-                name: "TypeEntity");
+                name: "Types");
 
             migrationBuilder.DropIndex(
-                name: "IX_Foods_TypeEntityId",
+                name: "IX_Foods_IdTypeEntity",
                 table: "Foods");
 
             migrationBuilder.DropColumn(
-                name: "TypeEntityId",
+                name: "IdTypeEntity",
                 table: "Foods");
         }
     }

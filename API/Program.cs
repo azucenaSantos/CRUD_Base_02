@@ -1,13 +1,16 @@
 using API.Data;
-using Microsoft.AspNetCore.Builder;
+using API.Extensions;
+using API.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+//Añadimos el servicio que hemos creado con el automapper
+builder.Services.AddApplicationServices(builder.Configuration); 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

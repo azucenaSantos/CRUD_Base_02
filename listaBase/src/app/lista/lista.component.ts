@@ -37,10 +37,13 @@ export class ListaComponent implements OnInit {
   data: any = ['', '', '', '', ''];
 
   foods: any;
+  types: any;
 
   rowFocus: number = 0;
 
   activated: boolean = false;
+
+  deleteButton: boolean= false;
 
   constructor(
     private http: HttpClient,
@@ -50,11 +53,21 @@ export class ListaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    //acceso a todos los datos de la api
+    //acceso a todos las comidas
     this.apiService.get().subscribe({
       next: (response) => {
         this.foods = response;
+        //console.log(response);
         this.getFirstRow();
+      },
+      error: (error) => console.log(error.error),
+    });
+
+    //acceso a todos los tipos de comida
+    this.apiService.getTypes().subscribe({
+      next: (response) => {
+        this.types = response;
+        //console.log(response);
       },
       error: (error) => console.log(error.error),
     });
@@ -69,11 +82,10 @@ export class ListaComponent implements OnInit {
     this.registerForm.reset();
     this.inputFocus.focus();
     this.rowFocus = -1;
-    this.data = ['', '', '', '', ''];
+    this.data = ['', '', '', '', '', ''];
   }
 
   deleteFood() {
-    console.log(this.data);
     const idDelete = this.data.id;
     //Busamos el indice de la fila eliminada
     const indexToDelete = this.foods.findIndex(
@@ -93,7 +105,7 @@ export class ListaComponent implements OnInit {
         //Controlamos el foco (si hay datos, si es el primer elemento...)
         if (indexToDelete == 0) {
           this.rowFocus = 0;
-          this.data = ['', '', '', '', ''];
+          this.data = ['', '', '', '', '', ''];
         } else {
           this.rowFocus = indexToDelete - 1;
         }
@@ -107,30 +119,34 @@ export class ListaComponent implements OnInit {
             descripcion: row.descripcion,
             precio: row.precio,
             saludable: row.saludable,
+            tipocomida: row.tipocComida,
           });
         } else {
           //si nos quedamos sin filas reseteamos
           this.registerForm.reset();
         }
-        console.log(this.data);
       },
       error: () => this.toaster.error('Error en la eliminacion'),
     });
   }
-
 
   saveFoodApi() {
     //Comprobar si estamos añadiendo una nueva o guardando modificaciones
     if (!this.data.nombre) {
       console.log('añadiendo');
       //estamos añadiendo
+      const tipoAdd: Tipo = {
+        id: this.registerForm.controls['tipocomida'].value
+      };
       const newFood: Comida = {
         id: 0,
         nombre: this.registerForm.controls['nombre'].value,
         descripcion: this.registerForm.controls['descripcion'].value,
         precio: this.registerForm.controls['precio'].value,
         saludable: this.registerForm.controls['saludable'].value ?? false, //fuerzo a false cuado el control valga null (no marcado)
+        typeEntity: tipoAdd, //se crea una new food con el id del tipo del select
       };
+      console.log('Nuevo tipo de comida seleccionado:', newFood.typeEntity);
 
       if (this.registerForm.status == 'VALID') {
         this.apiService.add(newFood).subscribe({
@@ -143,13 +159,12 @@ export class ListaComponent implements OnInit {
                   this.rowFocus = this.foods.length;
                 }, 100);
                 //foco en el primer input del form
-                this.registerForm.markAsPristine();
+                this.deleteButton = false;
+                this.registerForm.markAsPristine();                
                 this.inputFocus.focus();
                 this.activated = false;
               },
             });
-            //vacio form tras añadir
-            //this.registerForm.reset();
           },
           error: () => {
             this.toaster.error('Revise los datos introducidos');
@@ -164,12 +179,16 @@ export class ListaComponent implements OnInit {
     } else {
       console.log('modificando');
       //estamos modificando
+      const tipoAdd: Tipo = {
+        id: this.registerForm.controls['tipocomida'].value
+      };
       const updatedFood: Comida = {
         id: this.data.id,
         nombre: this.registerForm.controls['nombre'].value,
         descripcion: this.registerForm.controls['descripcion'].value,
         precio: this.registerForm.controls['precio'].value,
         saludable: this.registerForm.controls['saludable'].value ?? false,
+        typeEntity: tipoAdd,
       };
       if (this.registerForm.status == 'VALID') {
         //Actualizacion de los datos en la api y refrescar datagrid
@@ -177,6 +196,7 @@ export class ListaComponent implements OnInit {
           next: (_) => {
             this.apiService.get().subscribe({
               next: (response) => {
+                console.log(response),
                 (this.foods = response), this.datagrid.instance.refresh();
               },
             });
@@ -193,11 +213,13 @@ export class ListaComponent implements OnInit {
         );
       }
     }
+    console.log(this.foods);
   }
 
   getDataFromRowSelected(e: any) {
     this.activated = false;
     this.data = e.data;
+    this.deleteButton = !this.data || !this.data.id;
     //Funcion para sincronizar los valores de la lista con el formulario
     this.registerForm.patchValue({
       id: e.data.id,
@@ -205,6 +227,7 @@ export class ListaComponent implements OnInit {
       descripcion: e.data.descripcion,
       precio: e.data.precio,
       saludable: e.data.saludable,
+      tipocomida: e.data.typeEntity.id,
     });
   }
 
@@ -218,6 +241,7 @@ export class ListaComponent implements OnInit {
         descripcion: firstRow.descripcion,
         precio: firstRow.precio,
         saludable: firstRow.saludable,
+        tipocomida: firstRow.typeEntity.id,
       });
       this.rowFocus = 0; // Establecer el foco en la primera fila
     } else {
@@ -232,6 +256,7 @@ export class ListaComponent implements OnInit {
       descripcion: [''],
       precio: ['', Validators.required],
       saludable: [false],
+      tipocomida: ['Seleccione un tipo de comida', Validators.required],
     });
   }
 }
@@ -242,5 +267,10 @@ class Comida {
   descripcion?: string;
   precio?: number;
   saludable?: boolean;
-  tipoComida?: string;  
+  typeEntity?: Tipo; //Objeto con id y nombre del tipo
+}
+
+class Tipo {
+  id!: number;
+  nombre?: string;
 }

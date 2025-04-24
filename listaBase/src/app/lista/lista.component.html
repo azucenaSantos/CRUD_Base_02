@@ -27,8 +27,8 @@
             [width]="200"
           ></dxi-column>
           <dxi-column
-          dataField="tipocomida"
-          caption="Tipo"
+          dataField="typeEntity.nombre"
+          caption="Tipo de Comida"
           [width]="120"
         ></dxi-column>
           <dxi-column dataField="precio" caption="Precio" [width]="150">
@@ -47,16 +47,19 @@
                 icon="add"
                 (onClick)="addFood()"
                 [disabled]="registerForm.dirty"
+
               >
+              <!--[disabled]="registerForm.dirty"-->
               </dx-button>
             </dxi-item>
             <dxi-item location="after">
               <dx-button
                 icon="trash"
                 (onClick)="deleteFood()"
-                [disabled]="registerForm.dirty || !data?.id"
+                [disabled]="registerForm.dirty || !data?.id || deleteButton"
+
               >
-                <!--[disabled]="registerForm.invalid"-->
+                <!--[disabled]="registerForm.dirty || !data?.id"-->
               </dx-button>
             </dxi-item>
             <dxi-item location="after">
@@ -64,9 +67,10 @@
                 icon="save"
                 (onClick)="saveFoodApi()"
                 [disabled]="registerForm.pristine"
+
                 
               >
-                <!--[disabled]="registerForm.invalid"-->
+                <!--[disabled]="registerForm.pristine"-->
               </dx-button>
             </dxi-item>
           </dxo-toolbar>
@@ -113,11 +117,14 @@
             ></app-text-input>
 
             <label>Tipo de comida:</label>
-            <select style="display: block; margin-bottom: 15px;">
-              <option>Insertar posibles valores</option>
-              <option>...</option>
-              <option>...</option>
+            <select style="display: block; margin-bottom: 15px;" [formControl]="$any(registerForm.controls['tipocomida'])">
+              <option disabled [value]="'Seleccione un tipo de comida'">Seleccione un tipo de comida</option>
+              <option *ngFor="let tipo of types" [value]="tipo.id">{{ tipo.nombre }}</option>
+              <!--el value que pasamos pasa posteriormente añadir la comida es el id porque
+              con el será con el que busquemos en el post-add del controller el tipo correspondiente
+              y lo guardaremos todo como una food en la base de datos (se verá todo el contenido en el datagrid)-->
             </select>
+
 
             <label>Precio:</label>
             <input

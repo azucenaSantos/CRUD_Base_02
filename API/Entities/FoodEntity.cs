@@ -13,12 +13,13 @@ namespace API.Entities
         public decimal Precio { get; set; }
         public bool Saludable { get; set; }
 
-        // Clave foránea para TypeEntity
-        public int TypeEntityId { get; set; } // Id del TypeEntity
+        
 
         //Relacion de foreign key entre tablas
-        [ForeignKey("TypeEntityId")]
-        public TypeEntity TypeFood { get; set; } // Relación con TypeEntity
+        [ForeignKey("TypeEntity")] //Nombre entidad de la que recibe el id
+        // Clave foránea para TypeEntity
+        public int IdTypeEntity { get; set; } // Id del TypeEntity
+        public TypeEntity TypeEntity { get; set; } // Entidad (id+nombre)
 
     }
 }
